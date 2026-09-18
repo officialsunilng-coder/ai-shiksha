@@ -72,10 +72,10 @@ async function ensureModelProcess() {
     ], {
       cwd: path.dirname(executable),
       windowsHide: true,
-      stdio: ['ignore', 'ignore', 'pipe'],
+      stdio: ['ignore', 'ignore', app.isPackaged ? 'ignore' : 'pipe'],
     })
 
-    modelServer.stderr.on('data', (data) => {
+    modelServer.stderr?.on('data', (data) => {
       console.error(`Granite runtime: ${data.toString().trim()}`)
     })
     modelServer.once('exit', () => {
@@ -218,7 +218,7 @@ function createWindow() {
 app.whenReady().then(() => {
   createWindow()
   void ensureModelProcess().catch((error) => {
-    console.error(`Granite preload: ${error.message}`)
+    if (!app.isPackaged) console.error(`Granite preload: ${error.message}`)
   })
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

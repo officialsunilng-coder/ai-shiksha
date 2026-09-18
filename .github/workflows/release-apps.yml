@@ -11,6 +11,12 @@ on:
         options:
           - all
           - android
+          - windows
+      release_tag:
+        description: Existing draft release tag
+        required: true
+        default: v2026.09.18-offline
+        type: string
 
 permissions:
   contents: write
@@ -20,11 +26,12 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  RELEASE_TAG: v2026.09.18-offline
+  RELEASE_TAG: ${{ inputs.release_tag }}
 
 jobs:
   android:
     name: Build Android offline Tutor
+    if: inputs.target != 'windows'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -101,7 +108,7 @@ jobs:
 
   windows:
     name: Build Windows offline Tutor
-    if: inputs.target == 'all'
+    if: inputs.target != 'android'
     runs-on: windows-latest
     defaults:
       run:
@@ -176,18 +183,23 @@ jobs:
   publish:
     name: Publish completed release
     needs: [android, windows]
-    if: always() && needs.android.result == 'success' && (needs.windows.result == 'success' || needs.windows.result == 'skipped')
+    if: always() && (needs.android.result == 'success' || needs.android.result == 'skipped') && (needs.windows.result == 'success' || needs.windows.result == 'skipped') && (needs.android.result == 'success' || needs.windows.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - name: Verify required release assets
         env:
           GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ inputs.target }}
         run: |
           assets="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
-          grep -Fx "AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk" <<< "$assets"
-          grep -Fx "Android-SHA256SUMS.txt" <<< "$assets"
-          grep -Fx "ShikshaAI-Granite-Lite-0.1.0-Setup.exe" <<< "$assets"
-          grep -Fx "Windows-SHA256SUMS.txt" <<< "$assets"
+          if [[ "$TARGET" != "windows" ]]; then
+            grep -Fx "AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk" <<< "$assets"
+            grep -Fx "Android-SHA256SUMS.txt" <<< "$assets"
+          fi
+          if [[ "$TARGET" != "android" ]]; then
+            grep -Fx "ShikshaAI-Granite-Lite-0.1.0-Setup.exe" <<< "$assets"
+            grep -Fx "Windows-SHA256SUMS.txt" <<< "$assets"
+          fi
 
       - name: Publish draft release
         env:
