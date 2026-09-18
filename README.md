@@ -9,7 +9,7 @@ This repository hosts the hackathon browser demo and Android test package.
 
 Open the QR landing page:
 
-`https://sunilnan_microsoft.github.io/ai-shiksha/demo.html`
+`https://officialsunilng-coder.github.io/ai-shiksha/demo.html`
 
 The browser demo includes:
 

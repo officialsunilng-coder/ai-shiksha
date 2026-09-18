@@ -399,7 +399,7 @@ GitHub repository
 Target QR URL:
 
 ```text
-https://sunilnan_microsoft.github.io/ai-shiksha/demo.html
+https://officialsunilng-coder.github.io/ai-shiksha/demo.html
 ```
 
 ## 10. Recommended single-slide diagram
