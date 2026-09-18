@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           npm run build
-          npx cap copy android
+          npx cap sync android
 
       - name: Download and verify mobile Granite model
         shell: bash
