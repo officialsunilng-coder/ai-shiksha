@@ -1,0 +1,552 @@
+import type { CurriculumLesson, CurriculumModule, GuidedProject } from '../types/curriculum'
+import { lessonGuides } from './lesson-guides'
+import { projectGuides } from './project-guides'
+
+const lesson = (
+  moduleId: string,
+  order: number,
+  title: string,
+  summary: string,
+  grades: [number, number],
+  difficulty: CurriculumLesson['difficulty'],
+  color: string,
+  objectives: string[],
+  vocabulary: Array<[string, string]>,
+  sections: Array<[string, string, string]>,
+  quiz: Array<[string, string[], number, string]>,
+): CurriculumLesson => {
+  const id = `${moduleId}-${order}`
+  const guide = lessonGuides[id]
+  return {
+  id,
+  moduleId,
+  order,
+  title,
+  summary,
+  gradeMin: grades[0],
+  gradeMax: grades[1],
+  minutes: difficulty === 'Foundation' ? 25 : difficulty === 'Explorer' ? 35 : 45,
+  difficulty,
+  color,
+  objectives,
+  vocabulary: vocabulary.map(([term, meaning]) => ({ term, meaning })),
+  sections: [
+    ...sections.map(([sectionTitle, body, activity]) => ({ title: sectionTitle, body, activity })),
+    {
+      title: 'Detailed study notes',
+      body: guide.deepDive,
+      activity: 'Pause after each paragraph. Write one sentence in your own words, then connect it to one objective and one vocabulary term from this lesson.',
+    },
+    {
+      title: 'Worked example and independent practice',
+      body: guide.workedExample,
+      activity: guide.practice,
+    },
+  ],
+  quiz: quiz.map(([prompt, options, correctIndex, explanation], index) => ({
+    id: `${moduleId}-${order}-q${index + 1}`,
+    prompt,
+    options,
+    correctIndex,
+    explanation,
+  })),
+  }
+}
+
+export const curriculum: CurriculumModule[] = [
+  {
+    id: 'ai-foundations',
+    order: 1,
+    title: 'AI Foundations',
+    description: 'Understand what AI is, what it can do, and how people use it responsibly.',
+    color: '#e75d35',
+    gradeBand: 'Grades 5–10',
+    lessons: [
+      lesson('ai-foundations', 1, 'What Is Artificial Intelligence?', 'Meet AI through familiar examples and learn what makes a system intelligent.', [5, 10], 'Foundation', '#e75d35',
+        ['Define AI in your own words', 'Recognize AI in everyday tools', 'Separate AI from ordinary automation'],
+        [['Artificial intelligence', 'Computer systems designed to perform tasks that usually need human intelligence'], ['Automation', 'A fixed process that follows programmed steps'], ['Model', 'A learned mathematical pattern used to make predictions or generate output']],
+        [
+          ['Machines that perform intelligent tasks', 'Artificial intelligence is a field where people build computer systems that can recognize patterns, understand language, make predictions, create content, or choose actions. AI does not think or feel like a person. It processes inputs using rules and patterns represented by a model.', 'List five tools you have seen. For each, decide whether it uses fixed rules, AI, or both.'],
+          ['AI around us', 'Examples include speech recognition, translation, recommendation systems, navigation, spam filters, image recognition, and learning assistants. A tool can contain several parts, and only some parts may use AI.', 'Find three offline examples on your device, such as predictive typing, photo grouping, or a game opponent.'],
+          ['AI is not magic', 'Every AI system has inputs, a method for processing them, and outputs. Its abilities depend on its design, training data, and testing. It can make confident mistakes, so people must check important answers.', 'Draw an input → model → output diagram for a voice assistant.'],
+        ],
+        [
+          ['Which description best matches AI?', ['A machine that always thinks exactly like a human', 'A system that performs tasks using learned or designed intelligence-like methods', 'Any device that uses electricity', 'A website connected to the internet'], 1, 'AI systems perform tasks such as recognizing patterns or generating language; they do not need to think like humans.'],
+          ['Why should important AI answers be checked?', ['AI can make convincing mistakes', 'AI never stores information', 'All AI requires internet', 'AI can only answer mathematics'], 0, 'AI output can be incorrect or incomplete even when it sounds confident.'],
+        ]),
+      lesson('ai-foundations', 2, 'AI, Rules, and Algorithms', 'Learn how instructions, algorithms, and learned models differ.', [5, 8], 'Foundation', '#e75d35',
+        ['Describe an algorithm', 'Build a decision rule', 'Explain when learning from examples is useful'],
+        [['Algorithm', 'A clear sequence of steps for solving a problem'], ['Rule-based system', 'A program that follows rules written by people'], ['Machine learning', 'A way for computers to learn useful patterns from examples']],
+        [
+          ['Algorithms are recipes', 'An algorithm is a precise set of steps. A recipe, long division, and instructions for sorting books are everyday algorithms. Computers need steps that are unambiguous.', 'Write an algorithm for deciding what to carry when rain is expected.'],
+          ['Rules can make decisions', 'A rule-based program might say: if temperature is above 30°C, show a heat warning. Rules are understandable but can become difficult to maintain when a problem has many exceptions.', 'Create three if–then rules for sorting classroom waste.'],
+          ['Learning from examples', 'Machine learning is useful when it is difficult to write every rule. Instead, a model studies examples and discovers statistical patterns. The examples must represent the situations where the model will be used.', 'Think of a problem where hundreds of handwritten rules would be difficult. Explain why examples might help.'],
+        ],
+        [
+          ['What is an algorithm?', ['A random guess', 'A sequence of problem-solving steps', 'A type of computer screen', 'Only a machine-learning model'], 1, 'Algorithms are clear procedures; both traditional programs and AI systems use algorithms.'],
+          ['When is machine learning often useful?', ['When one simple rule solves everything', 'When patterns are complex but examples are available', 'When no data exists', 'When answers must always be random'], 1, 'Learning from representative examples can handle patterns that are hard to express as fixed rules.'],
+        ]),
+      lesson('ai-foundations', 3, 'How Machines Learn from Examples', 'Follow the journey from examples to a trained model and prediction.', [5, 9], 'Foundation', '#e75d35',
+        ['Identify training examples and labels', 'Explain training and prediction', 'Recognize why examples affect results'],
+        [['Training', 'The process of adjusting a model using examples'], ['Label', 'The correct category or target attached to an example'], ['Prediction', 'A model’s estimated answer for new input']],
+        [
+          ['Examples teach patterns', 'Suppose we want to classify fruit. Each training example might include color, weight, and texture, plus a label such as mango or orange. The model looks for relationships between those features and labels.', 'Make a table describing five objects using three features and one label.'],
+          ['Training changes the model', 'During training, the model makes predictions, compares them with known answers, measures error, and adjusts its internal numbers. This repeats many times. The model does not simply memorize every example when training works well.', 'Act out training: one learner guesses a hidden sorting rule while another provides examples and corrections.'],
+          ['Prediction uses learned patterns', 'After training, the model receives a new input and produces a prediction. A prediction is not a guaranteed fact. We test many new examples to estimate how reliable the model is.', 'Explain how you would test a fruit classifier without reusing its training examples.'],
+        ],
+        [
+          ['What is a label?', ['The model’s computer case', 'The known answer attached to a training example', 'A random number', 'A programming language'], 1, 'In supervised learning, labels provide target answers used during training.'],
+          ['What happens during prediction?', ['The model changes every training label', 'The model uses learned patterns on new input', 'The computer deletes the data', 'A person writes a new rule each time'], 1, 'Prediction applies what the model learned to a new input.'],
+        ]),
+      lesson('ai-foundations', 4, 'Human Intelligence and AI', 'Compare human strengths with machine strengths and design healthy teamwork.', [5, 10], 'Foundation', '#e75d35',
+        ['Compare people and AI fairly', 'Identify tasks needing human judgment', 'Design a human-in-the-loop process'],
+        [['Judgment', 'Using knowledge, values, and context to make a decision'], ['Human in the loop', 'A person who reviews or controls an AI-assisted process'], ['Accountability', 'Responsibility for decisions and their effects']],
+        [
+          ['Different strengths', 'Computers can process large amounts of structured information quickly. People understand lived experience, values, relationships, and local context. Neither should be described as universally better.', 'Make two columns: tasks people do well and tasks computers do well. Add one task where teamwork is best.'],
+          ['High-impact decisions need care', 'Decisions about health, safety, education, money, and rights can seriously affect people. AI may assist, but qualified people must verify evidence, listen to affected people, and remain accountable.', 'Design a review checklist for an AI tool that suggests study topics.'],
+          ['Use AI as a tool, not an authority', 'A good learner asks what evidence supports an answer, checks other sources, and takes responsibility for submitted work. AI can explain and coach, but it should not replace thinking.', 'Rewrite one homework question as a request for guidance rather than a request to copy an answer.'],
+        ],
+        [
+          ['What does “human in the loop” mean?', ['A person reviews or controls an AI-assisted process', 'The AI becomes human', 'The computer has no users', 'The model trains without data'], 0, 'Human review is important when context, values, or consequences matter.'],
+          ['Who remains responsible for an AI-assisted decision?', ['Nobody', 'Only the computer', 'The people and organization using the system', 'The training data'], 2, 'AI is a tool; people remain accountable for how it is selected and used.'],
+        ]),
+    ],
+  },
+  {
+    id: 'data-patterns',
+    order: 2,
+    title: 'Data and Patterns',
+    description: 'Collect, organize, visualize, and evaluate the information that teaches AI.',
+    color: '#2d8d77',
+    gradeBand: 'Grades 5–10',
+    lessons: [
+      lesson('data-patterns', 1, 'What Is Data?', 'Understand data types, records, features, and responsible collection.', [5, 8], 'Foundation', '#2d8d77',
+        ['Recognize common data types', 'Separate features from labels', 'Collect only necessary data'],
+        [['Data', 'Recorded observations or measurements'], ['Feature', 'A measurable property used as model input'], ['Dataset', 'An organized collection of related records']],
+        [
+          ['Data represents observations', 'Numbers, words, images, sounds, and categories can all be data. A row in a table usually represents one example, while columns describe its features.', 'Create a five-row dataset about local plants without recording anyone’s personal information.'],
+          ['Features describe examples', 'For a plant dataset, features could include leaf length, color, sunlight, and soil moisture. A target label might be healthy or unhealthy. Useful features relate to the question being studied.', 'Circle useful features for predicting whether a seed sprouts and cross out unrelated ones.'],
+          ['Collect with purpose and consent', 'Collect only what a project needs. Avoid names, faces, addresses, passwords, or private details unless there is a justified, safe, consent-based process supervised by an adult.', 'Write a one-sentence purpose and a safe-data checklist for a classroom survey.'],
+        ],
+        [
+          ['Which is a feature in a plant-health dataset?', ['Leaf color', 'The file name only', 'A secret password', 'The model’s opinion'], 0, 'Leaf color is an observable property that may help describe plant health.'],
+          ['What is good data practice?', ['Collect everything possible', 'Collect only necessary, appropriate information', 'Publish private records', 'Remove all labels'], 1, 'Purpose limitation reduces privacy and security risks.'],
+        ]),
+      lesson('data-patterns', 2, 'Finding Patterns and Visualizing Data', 'Use counts, tables, and charts to discover patterns before modeling.', [5, 9], 'Explorer', '#2d8d77',
+        ['Summarize a dataset', 'Choose an appropriate chart', 'Avoid confusing correlation with cause'],
+        [['Distribution', 'How values are spread across possible outcomes'], ['Outlier', 'A value unusually far from most observations'], ['Correlation', 'A relationship where two measurements change together']],
+        [
+          ['Start by looking', 'Before training a model, inspect the data. Count categories, find minimum and maximum values, calculate typical values, and check for missing or impossible records.', 'Review a small table and mark missing values, duplicates, and surprising measurements.'],
+          ['Charts make patterns visible', 'Bar charts compare categories, line charts show change over time, and scatter plots show relationships between two numerical features. Labels and scales must be clear.', 'Choose a chart for daily temperature, favorite school subjects, and height versus age.'],
+          ['Patterns do not always prove causes', 'If two things happen together, one may not cause the other. A hidden factor may affect both, or the pattern may be coincidence. Experiments and domain knowledge help test causal claims.', 'Give an example of two things that may correlate without one causing the other.'],
+        ],
+        [
+          ['Which chart is usually best for change over time?', ['Line chart', 'Unlabelled picture', 'Random color grid', 'Single number'], 0, 'A line chart makes a sequence over time easier to inspect.'],
+          ['Does correlation always prove causation?', ['Yes', 'Only for large datasets', 'No', 'Only for AI models'], 2, 'A relationship alone does not establish why it exists.'],
+        ]),
+      lesson('data-patterns', 3, 'Training, Validation, and Test Sets', 'Learn why models must be checked on examples they did not train on.', [7, 10], 'Explorer', '#2d8d77',
+        ['Explain the purpose of each data split', 'Recognize data leakage', 'Design a fair test'],
+        [['Training set', 'Examples used to fit the model'], ['Validation set', 'Examples used to tune choices during development'], ['Test set', 'Held-back examples used for final evaluation']],
+        [
+          ['Three different jobs', 'Training data teaches the model. Validation data helps choose settings and compare versions. Test data estimates performance after development decisions are complete.', 'Divide 100 example cards into reasonable training, validation, and test groups.'],
+          ['Keep the test honest', 'If developers repeatedly look at test answers and change the model, the test no longer measures performance on truly unseen examples. This is a form of leakage.', 'Explain why studying the answer sheet before an exam gives a misleading score.'],
+          ['Split related records carefully', 'Nearly identical records, repeated photos, or data from the same person can leak across splits. Group-aware or time-aware splitting may be needed.', 'Design a split for plant photos where each plant has several pictures.'],
+        ],
+        [
+          ['What is the main purpose of a test set?', ['Train the model', 'Estimate performance on unseen data', 'Store passwords', 'Increase every score'], 1, 'The test set is held back to provide a more honest final evaluation.'],
+          ['What is data leakage?', ['Data stored in a table', 'Information from evaluation improperly influencing training', 'A slow computer', 'A missing chart title'], 1, 'Leakage gives the model information it would not legitimately have in real use.'],
+        ]),
+      lesson('data-patterns', 4, 'Bias, Representation, and Data Quality', 'See how incomplete or unfair data can harm model performance.', [7, 10], 'Explorer', '#2d8d77',
+        ['Identify representation gaps', 'Distinguish data and measurement problems', 'Propose safer evaluation groups'],
+        [['Bias', 'A systematic pattern that can create unfair or inaccurate results'], ['Representation', 'How well relevant groups and situations appear in data'], ['Measurement error', 'Difference between the real value and what was recorded']],
+        [
+          ['Data reflects its collection process', 'A dataset is not a neutral copy of the world. Who collected it, where, when, with which tools, and for what purpose all shape what it contains.', 'Write five questions you would ask before trusting a dataset.'],
+          ['Missing groups create blind spots', 'A model trained only in one location, language, age range, or device type may perform poorly elsewhere. Overall accuracy can hide these gaps.', 'Design a test table that reports results by lighting condition and device type.'],
+          ['Improve, document, or do not deploy', 'Teams can collect better examples, change measurements, narrow the intended use, add human review, or decide the system is not safe enough to use.', 'Choose a response to a model that works well in daylight but poorly at night, and defend your choice.'],
+        ],
+        [
+          ['Why can overall accuracy be misleading?', ['It may hide poor results for particular groups or conditions', 'Accuracy is always zero', 'It measures storage only', 'It removes all bias'], 0, 'Disaggregated evaluation can reveal important performance differences.'],
+          ['What should a team do when data does not represent intended users?', ['Ignore the gap', 'Collect and evaluate better data or narrow the use', 'Hide the results', 'Increase the font size'], 1, 'The data and intended use must align before deployment.'],
+        ]),
+    ],
+  },
+  {
+    id: 'machine-learning',
+    order: 3,
+    title: 'Machine Learning',
+    description: 'Understand classification, regression, clustering, neural networks, and evaluation.',
+    color: '#4a70c8',
+    gradeBand: 'Grades 6–10',
+    lessons: [
+      lesson('machine-learning', 1, 'Supervised Learning', 'Learn from labelled examples to predict categories or numbers.', [6, 10], 'Explorer', '#4a70c8',
+        ['Define supervised learning', 'Compare classification and regression', 'Frame a prediction problem'],
+        [['Supervised learning', 'Learning a mapping from inputs to known target answers'], ['Classification', 'Predicting a category'], ['Regression', 'Predicting a numerical value']],
+        [
+          ['Learning with answer examples', 'In supervised learning, each training example includes inputs and a target answer. The model searches for a relationship that can predict targets for new inputs.', 'Turn a real problem into an input → target statement.'],
+          ['Classification predicts categories', 'Examples include identifying a type of leaf, sorting recyclable items, or detecting unwanted messages. Categories must be defined clearly.', 'Create categories and example labels for a three-class school-library sorter.'],
+          ['Regression predicts numbers', 'Examples include estimating travel time, electricity use, or plant growth. The error is the difference between predicted and actual values.', 'List three features that could help estimate how long a bus journey takes.'],
+        ],
+        [
+          ['Which task is classification?', ['Predict tomorrow’s temperature in degrees', 'Identify whether an email is spam', 'Measure file size', 'Count table rows'], 1, 'Spam detection predicts a category.'],
+          ['Which task is regression?', ['Choose red, green, or blue', 'Predict the number of minutes a journey takes', 'Name an animal', 'Detect yes or no'], 1, 'Journey duration is a numerical target.'],
+        ]),
+      lesson('machine-learning', 2, 'Unsupervised Learning and Clustering', 'Discover groups and structure when examples do not have labels.', [7, 10], 'Explorer', '#4a70c8',
+        ['Explain clustering', 'Choose features for similarity', 'Interpret clusters cautiously'],
+        [['Unsupervised learning', 'Learning patterns from data without target labels'], ['Clustering', 'Grouping examples that are similar according to selected features'], ['Similarity', 'A defined measure of how alike two examples are']],
+        [
+          ['Learning without answer labels', 'Unsupervised methods search for structure rather than known answers. They can help explore data, compress information, or suggest groups for further study.', 'Group a set of imaginary books using features you choose.'],
+          ['Features define similarity', 'Two songs can be similar by tempo but different by language. A clustering result depends on which features are measured, their scales, and the chosen algorithm.', 'Describe two different valid ways to group the same classroom objects.'],
+          ['Clusters need human interpretation', 'A cluster is a mathematical grouping, not automatically a meaningful real-world category. People must inspect and explain the pattern without inventing unsupported stories.', 'Name one conclusion you can and cannot make from a cluster of similar study habits.'],
+        ],
+        [
+          ['Does clustering require target labels?', ['Always', 'No', 'Only on mobile', 'Only for images'], 1, 'Clustering is commonly an unsupervised method.'],
+          ['What strongly affects a cluster?', ['The selected features and similarity measure', 'The computer wallpaper', 'The learner’s name', 'Internet speed'], 0, 'The mathematical definition of similarity shapes the groups.'],
+        ]),
+      lesson('machine-learning', 3, 'Neural Networks Without the Mystery', 'Build an intuitive model of layers, weights, activations, and learning.', [7, 10], 'Builder', '#4a70c8',
+        ['Describe a neuron-like computation', 'Explain layers and weights', 'Recognize that deep learning is machine learning'],
+        [['Weight', 'A learned number controlling how strongly an input influences a calculation'], ['Layer', 'A group of processing units at one stage of a network'], ['Deep learning', 'Machine learning using neural networks with multiple learned layers']],
+        [
+          ['Small calculations connected together', 'An artificial neuron combines input numbers using weights, adds a bias, and applies an activation function. It is a mathematical unit, not a biological brain cell.', 'Calculate a simple weighted score using two inputs and provided weights.'],
+          ['Layers learn representations', 'Early layers may detect simple patterns, while later layers combine them into more useful representations. What a layer learns emerges from training and must be evaluated, not assumed.', 'Draw an input layer, two hidden layers, and an output layer for an image classifier.'],
+          ['Learning adjusts many weights', 'Training uses an error signal and optimization to adjust weights. Larger networks can learn powerful patterns but need data, computing resources, careful testing, and safety controls.', 'Explain why a larger model is not automatically a better choice for every problem.'],
+        ],
+        [
+          ['What is a weight in a neural network?', ['A learned numerical influence', 'The physical mass of a laptop', 'A data label', 'A password'], 0, 'Weights are parameters adjusted during training.'],
+          ['Is an artificial neuron a tiny biological brain?', ['Yes', 'No, it is a mathematical computation inspired loosely by neurons', 'Only when online', 'Only in robots'], 1, 'The name is an analogy; the computation is much simpler than a biological neuron.'],
+        ]),
+      lesson('machine-learning', 4, 'Measuring Model Performance', 'Use confusion matrices and useful metrics instead of trusting one score.', [8, 10], 'Builder', '#4a70c8',
+        ['Read true and false predictions', 'Compare accuracy, precision, and recall', 'Choose metrics based on consequences'],
+        [['Accuracy', 'The fraction of all predictions that are correct'], ['Precision', 'Among predicted positives, the fraction that are truly positive'], ['Recall', 'Among actual positives, the fraction the model finds']],
+        [
+          ['Count four outcomes', 'For a two-class classifier, predictions can be true positive, true negative, false positive, or false negative. A confusion matrix organizes these counts.', 'Create a confusion matrix for ten hand-checked predictions.'],
+          ['Different metrics answer different questions', 'Accuracy summarizes all correct predictions. Precision focuses on false alarms. Recall focuses on missed positive cases. No metric is best for every situation.', 'Choose whether precision or recall matters more for two low-risk example problems.'],
+          ['Connect metrics to consequences', 'Teams should ask who is harmed by each error, evaluate relevant groups, and include human review. A good benchmark does not by itself prove a system is useful or fair.', 'Write an error-cost table for a model that sorts recyclable and non-recyclable objects.'],
+        ],
+        [
+          ['What does recall measure?', ['How many actual positives were found', 'Only model speed', 'The size of the dataset', 'How many features exist'], 0, 'Recall focuses on missed positive examples.'],
+          ['Why might accuracy be insufficient?', ['Different errors may have different consequences', 'Accuracy is not a number', 'It only works online', 'It always equals 100%'], 0, 'Metrics must reflect the real purpose and costs of errors.'],
+        ]),
+    ],
+  },
+  {
+    id: 'coding-ai',
+    order: 4,
+    title: 'Coding for AI',
+    description: 'Develop computational thinking and build small data-driven programs.',
+    color: '#8b5ab5',
+    gradeBand: 'Grades 6–10',
+    lessons: [
+      lesson('coding-ai', 1, 'Python Thinking: Variables and Decisions', 'Use variables, conditions, and functions to express a solution.', [6, 10], 'Explorer', '#8b5ab5',
+        ['Store values in variables', 'Write conditional logic', 'Break a solution into functions'],
+        [['Variable', 'A named place for a value'], ['Condition', 'A true-or-false test controlling a decision'], ['Function', 'A reusable block of instructions with a clear purpose']],
+        [
+          ['Variables make information reusable', 'Programs assign names to values such as temperature, score, or category. Clear names make code easier to understand and test.', 'Write variable names for a weather-advice program and give each a sample value.'],
+          ['Conditions choose a path', 'An if statement runs code when a condition is true. elif and else handle alternatives. Conditions should be tested at boundaries such as exactly 30 degrees.', 'Write pseudocode that recommends water breaks based on temperature.'],
+          ['Functions organize thinking', 'A function receives inputs, performs one focused job, and returns an output. Small functions can be tested independently and reused.', 'Design a function signature for converting a quiz score into a feedback message.'],
+        ],
+        [
+          ['What is the purpose of a condition?', ['Choose a path based on a true-or-false test', 'Store every file', 'Connect to the internet', 'Draw only charts'], 0, 'Conditions let a program make rule-based decisions.'],
+          ['Why use functions?', ['To make code reusable and easier to test', 'To remove all inputs', 'To guarantee AI accuracy', 'To hide errors'], 0, 'Focused functions support clear, testable programs.'],
+        ]),
+      lesson('coding-ai', 2, 'Lists, Loops, and Data Tables', 'Process many examples consistently using repeated operations.', [6, 10], 'Explorer', '#8b5ab5',
+        ['Represent a collection', 'Use a loop safely', 'Calculate a simple summary'],
+        [['List', 'An ordered collection of values'], ['Loop', 'A structure that repeats instructions'], ['Record', 'A group of fields describing one example']],
+        [
+          ['Collections hold examples', 'A list can hold quiz scores, labels, or records. A record may contain fields such as name, height, and category, though personal data should be avoided unless needed and protected.', 'Represent five non-personal weather readings as records.'],
+          ['Loops repeat a clear operation', 'A for loop visits each item. Good loops have clear names and avoid changing the collection unexpectedly while reading it.', 'Trace a loop that counts values greater than 10.'],
+          ['Summaries reveal patterns', 'Programs can count categories, calculate totals and means, or find minimum and maximum values. Always consider missing or invalid entries.', 'Write pseudocode to calculate an average while safely ignoring missing values.'],
+        ],
+        [
+          ['What does a loop help a program do?', ['Repeat an operation for multiple items', 'Guarantee correct data', 'Create internet access', 'Replace all functions'], 0, 'Loops apply a process repeatedly.'],
+          ['What should happen before calculating a summary?', ['Check missing and invalid values', 'Delete all records', 'Rename every category randomly', 'Assume data is perfect'], 0, 'Data quality checks prevent misleading calculations.'],
+        ]),
+      lesson('coding-ai', 3, 'Build a Rule-Based Classifier', 'Create, test, and improve a transparent baseline before machine learning.', [7, 10], 'Builder', '#8b5ab5',
+        ['Create classification rules', 'Test edge cases', 'Compare a baseline with an ML idea'],
+        [['Classifier', 'A system that assigns an input to a category'], ['Baseline', 'A simple reference solution used for comparison'], ['Edge case', 'An unusual or boundary input that may expose a weakness']],
+        [
+          ['Start simple', 'Before training a model, build a baseline. A rule-based classifier is transparent and may already solve a small, stable problem well.', 'Create rules for sorting fictional messages into school, family, or activity categories.'],
+          ['Test normal and difficult examples', 'A test table should include common cases, boundaries, missing values, and examples that could match more than one rule.', 'Write eight test cases, including at least two edge cases.'],
+          ['Know when rules stop scaling', 'If exceptions grow rapidly or the input is complex, machine learning may help. The baseline remains useful because a learned model should beat it meaningfully.', 'List evidence you would require before replacing the rules with a trained model.'],
+        ],
+        [
+          ['Why build a baseline?', ['To have a simple comparison and possibly solve the problem', 'To avoid testing', 'To make code secret', 'To require internet'], 0, 'A baseline shows whether added complexity provides real value.'],
+          ['What is an edge case?', ['A typical example only', 'An unusual or boundary input', 'A model license', 'A chart color'], 1, 'Edge cases often reveal failures missed by ordinary examples.'],
+        ]),
+      lesson('coding-ai', 4, 'From Notebook to Reliable Application', 'Turn an experiment into a usable tool with validation, tests, and documentation.', [8, 10], 'Builder', '#8b5ab5',
+        ['Separate data, model, and interface', 'Validate inputs and handle errors', 'Create a reproducible project record'],
+        [['Pipeline', 'Connected stages that transform input into output'], ['Validation', 'Checking that input follows required rules'], ['Reproducibility', 'Ability to repeat a result using documented data, code, and settings']],
+        [
+          ['Separate responsibilities', 'A reliable AI application separates input handling, data preparation, model inference, output explanation, and storage. This makes each part easier to test and replace.', 'Draw a five-stage pipeline for a plant-advice application.'],
+          ['Expect invalid input and failures', 'Production code checks file types, sizes, missing values, unsupported devices, and model errors. It reports failures clearly instead of returning a success-shaped guess.', 'Write three friendly error messages for invalid project input.'],
+          ['Document what was built', 'Record the problem, intended users, dataset, model version, settings, evaluation, limitations, and instructions. Save exact versions and checksums for offline reproducibility.', 'Create a one-page model card outline for your project.'],
+        ],
+        [
+          ['Why separate an application into stages?', ['To test and maintain each responsibility', 'To make every file larger', 'To remove documentation', 'To avoid input checks'], 0, 'Separation improves clarity, testing, and safe replacement.'],
+          ['What supports reproducibility?', ['Recorded versions, data, settings, and instructions', 'Only a screenshot', 'A secret result', 'Changing the test each time'], 0, 'Others need enough evidence to repeat the work.'],
+        ]),
+    ],
+  },
+  {
+    id: 'generative-responsible',
+    order: 5,
+    title: 'Generative and Responsible AI',
+    description: 'Use language and creative models critically, safely, and fairly.',
+    color: '#c67a2b',
+    gradeBand: 'Grades 7–10',
+    lessons: [
+      lesson('generative-responsible', 1, 'How Language Models Work', 'Understand tokens, next-token prediction, context, and limitations.', [7, 10], 'Explorer', '#c67a2b',
+        ['Describe next-token prediction', 'Explain context limits', 'Recognize fluent text is not proof'],
+        [['Token', 'A piece of text processed by a language model'], ['Context', 'The text and instructions currently available to the model'], ['Language model', 'A model that predicts and generates sequences of tokens']],
+        [
+          ['Predicting text step by step', 'A language model learns statistical patterns from large amounts of text. Given context, it predicts a likely next token, adds it, and repeats. This process can produce useful explanations and creative text.', 'Play next-word prediction with a sentence and compare several reasonable continuations.'],
+          ['Context shapes the answer', 'Instructions, examples, conversation history, and retrieved lesson text influence output. A model has a limited context window and does not automatically know private files or unprovided events.', 'Compare a vague question with one that includes grade, goal, and relevant facts.'],
+          ['Fluency is not verification', 'Language models generate plausible sequences. They may state invented facts, calculations, sources, or confident explanations. Important claims require checking.', 'Mark which parts of a sample answer need calculation, experiment, or source verification.'],
+        ],
+        [
+          ['What does a language model predict during generation?', ['Likely next tokens', 'The future with certainty', 'Only image pixels', 'A person’s private thoughts'], 0, 'Text is generated token by token from learned statistical patterns and context.'],
+          ['Does fluent wording prove an answer is true?', ['Yes', 'No', 'Only offline', 'Only for long answers'], 1, 'Plausible language can still contain errors.'],
+        ]),
+      lesson('generative-responsible', 2, 'Prompting as Clear Communication', 'Write requests that specify goals, context, constraints, and checks.', [6, 10], 'Explorer', '#c67a2b',
+        ['Write a structured prompt', 'Request an explanation at the right level', 'Iterate and verify'],
+        [['Prompt', 'Input or instruction given to a generative model'], ['Constraint', 'A rule the output should follow'], ['Iteration', 'Improving a result through repeated testing and revision']],
+        [
+          ['Give the model a clear job', 'A useful prompt states the task, learner level, available information, desired format, and constraints. It should not include passwords or private data.', 'Rewrite “tell me science” as a clear grade-appropriate learning request.'],
+          ['Ask for teaching, not copying', 'For homework, request a hint, worked example with different numbers, concept explanation, or feedback on your attempt. Then solve the actual task yourself.', 'Convert a request for a final essay into a plan-and-feedback prompt.'],
+          ['Check and refine', 'Review whether the output meets the goal, verify facts and calculations, identify missing details, and ask a focused follow-up. Good prompting is an iterative problem-solving skill.', 'Create a three-step checklist for reviewing an AI answer.'],
+        ],
+        [
+          ['Which prompt is strongest?', ['Explain it', 'For a grade 7 learner, explain photosynthesis in five steps and include a self-check question', 'Do everything', 'Give secret data'], 1, 'It gives audience, topic, format, and a learning check.'],
+          ['What should never be placed in a prompt?', ['The learning goal', 'Private passwords or sensitive personal data', 'A desired format', 'Your own attempt'], 1, 'Sensitive information should be protected.'],
+        ]),
+      lesson('generative-responsible', 3, 'Hallucinations, Sources, and Verification', 'Use a repeatable process to test AI-generated claims.', [7, 10], 'Builder', '#c67a2b',
+        ['Define hallucination', 'Verify claims using offline evidence', 'Know when expert help is required'],
+        [['Hallucination', 'Generated information that is unsupported or false'], ['Primary source', 'Original evidence such as a dataset, experiment, law, or research report'], ['Triangulation', 'Checking a claim using multiple independent forms of evidence']],
+        [
+          ['Why models invent information', 'A language model optimizes likely text, not guaranteed truth. Missing context, ambiguous questions, or weak learned patterns can lead to unsupported details.', 'Identify warning signs in an answer containing a very specific fact but no checkable evidence.'],
+          ['Use an offline verification ladder', 'Check course material, recalculate, inspect supplied data, run a small experiment, compare independent references, and ask a qualified adult or teacher when consequences matter.', 'Verify a numerical claim using two different methods.'],
+          ['Match checking effort to risk', 'A creative story needs different checking from medical, legal, financial, safety, or identity-related advice. High-stakes questions need qualified human guidance.', 'Rank five example questions from low to high verification risk.'],
+        ],
+        [
+          ['What is an AI hallucination?', ['A computer screen effect', 'Unsupported or false generated information', 'A verified source', 'A model update'], 1, 'Hallucination refers to generated claims that lack factual support.'],
+          ['What should happen with high-stakes advice?', ['Trust one model answer', 'Seek qualified human guidance and reliable evidence', 'Skip verification', 'Publish immediately'], 1, 'Consequences require stronger evidence and accountable expertise.'],
+        ]),
+      lesson('generative-responsible', 4, 'Fairness, Privacy, Safety, and Ownership', 'Evaluate an AI project before it affects people.', [7, 10], 'Builder', '#c67a2b',
+        ['Apply a responsible-AI checklist', 'Protect personal data', 'Respect licenses and creators'],
+        [['Privacy', 'A person’s ability to control access to information about them'], ['Fairness', 'Careful treatment of different people and groups without unjust disadvantage'], ['License', 'Terms describing how a work may be used, changed, or shared']],
+        [
+          ['Ask who benefits and who may be harmed', 'Responsible teams identify affected people, test performance across relevant conditions, invite feedback, and provide a way to challenge or correct outcomes.', 'Create a stakeholder map for a school study-planning tool.'],
+          ['Protect data through the whole lifecycle', 'Minimize collection, obtain appropriate consent, restrict access, avoid exposing identities, define retention, and delete data safely when no longer needed.', 'Design a privacy-first version of a student feedback project.'],
+          ['Respect work and licenses', 'Permission to view something is not permission to redistribute it. Record sources and licenses for code, models, images, text, audio, and datasets. Attribute creators and follow modification rules.', 'Create a source record containing title, creator, location, license, and changes.'],
+        ],
+        [
+          ['Which action best protects privacy?', ['Collect all available details', 'Collect only necessary data and restrict access', 'Publish raw records', 'Reuse data for any purpose'], 1, 'Data minimization and access controls reduce risk.'],
+          ['Does a free download automatically permit redistribution?', ['Yes', 'No', 'Only for videos', 'Only without attribution'], 1, 'Redistribution rights depend on the exact license or permission.'],
+        ]),
+    ],
+  },
+  {
+    id: 'project-studio',
+    order: 6,
+    title: 'AI Project Studio',
+    description: 'Move from a real problem to a tested, documented, responsible AI project.',
+    color: '#2f7770',
+    gradeBand: 'Grades 7–10',
+    lessons: [
+      lesson('project-studio', 1, 'Choose and Frame a Useful Problem', 'Start with people and needs instead of starting with a model.', [7, 10], 'Builder', '#2f7770',
+        ['Write a problem statement', 'Identify users and constraints', 'Decide whether AI is appropriate'],
+        [['Problem statement', 'A precise description of a need, affected users, and desired improvement'], ['Stakeholder', 'A person or group affected by a project'], ['Constraint', 'A limit involving time, safety, data, hardware, or resources']],
+        [
+          ['Observe before building', 'Talk with intended users, observe the current process, and describe the difficulty without assuming a technology. Good projects solve a real, appropriately scoped need.', 'Write three observations about a local learning or environmental challenge.'],
+          ['Define success and boundaries', 'A problem statement should identify users, current difficulty, desired outcome, and constraints. Define what the project will not do.', 'Complete: “For ___, who struggle with ___, we will improve ___, measured by ___.”'],
+          ['Check whether AI adds value', 'Use AI only if pattern learning, prediction, or language generation meaningfully helps. A checklist, rule, or ordinary program may be safer and easier.', 'Compare an AI and non-AI solution to the same problem. Choose one with reasons.'],
+        ],
+        [
+          ['What should come first in an AI project?', ['Buying hardware', 'Understanding the problem and users', 'Training the largest model', 'Publishing results'], 1, 'Problem discovery prevents technology from becoming the goal.'],
+          ['When should a non-AI solution be chosen?', ['When it solves the need more simply and reliably', 'Never', 'Only without electricity', 'When no one understands it'], 0, 'AI should add justified value rather than unnecessary complexity.'],
+        ]),
+      lesson('project-studio', 2, 'Plan Data and Build a Prototype', 'Design safe data, a baseline, and a small testable version.', [7, 10], 'Builder', '#2f7770',
+        ['Create a data plan', 'Build a minimum useful prototype', 'Track assumptions and versions'],
+        [['Prototype', 'A small version built to test an idea'], ['Data card', 'Documentation describing a dataset, collection, uses, and limits'], ['Assumption', 'Something treated as true that should be tested']],
+        [
+          ['Plan before collecting', 'Define each feature, source, consent requirement, allowed use, storage location, quality check, and deletion rule. Avoid data that is unnecessary or unsafe for students to handle.', 'Complete a data-plan table for ten fictional plant records.'],
+          ['Build the smallest useful version', 'A prototype should test the riskiest assumption with minimal time and data. Start with a transparent baseline and a small interface.', 'Sketch three screens or steps for your minimum useful product.'],
+          ['Keep an engineering log', 'Record decisions, versions, experiments, failures, metrics, and next steps. This makes learning visible and helps reproduce results.', 'Create the first five entries in a project log.'],
+        ],
+        [
+          ['What is the purpose of a prototype?', ['Test important assumptions early', 'Pretend the product is complete', 'Avoid user feedback', 'Collect unlimited personal data'], 0, 'A prototype provides evidence before full investment.'],
+          ['What belongs in a data plan?', ['Features, sources, consent, storage, and quality checks', 'Only a project name', 'Passwords', 'Unverified copied data'], 0, 'Responsible projects plan the full data lifecycle.'],
+        ]),
+      lesson('project-studio', 3, 'Test, Debug, and Improve', 'Evaluate functionality, model quality, usability, safety, and offline behavior.', [7, 10], 'Builder', '#2f7770',
+        ['Write test cases', 'Analyze model errors', 'Use feedback to prioritize improvements'],
+        [['Debugging', 'Finding and correcting the cause of a problem'], ['Usability', 'How effectively intended users can use a product'], ['Acceptance criterion', 'A measurable condition required for success']],
+        [
+          ['Test more than the happy path', 'Include expected cases, edge cases, invalid inputs, low storage, restart, offline startup, cancellation, and recovery. Record expected and actual outcomes.', 'Write ten tests for an offline study assistant.'],
+          ['Study errors, not only scores', 'Group mistakes by type and inspect examples. Ask whether the cause is data, labels, features, model limits, interface design, or an unrealistic requirement.', 'Create an error-analysis table with cause and possible remedy columns.'],
+          ['Improve one measured problem at a time', 'Prioritize changes by learner impact and risk. Change one major factor, repeat the same evaluation, and record whether it improved.', 'Choose one failure, propose a change, and define the measurement that would confirm improvement.'],
+        ],
+        [
+          ['Which is an edge-case test?', ['A normal valid input only', 'An interrupted import with low storage', 'The project title', 'A successful screenshot'], 1, 'Unusual and failure conditions must be tested explicitly.'],
+          ['Why group model errors?', ['To discover recurring causes and targeted improvements', 'To hide failures', 'To guarantee perfect accuracy', 'To remove documentation'], 0, 'Error patterns guide evidence-based improvement.'],
+        ]),
+      lesson('project-studio', 4, 'Present, Document, and Maintain', 'Explain evidence honestly and prepare a project for responsible continued use.', [7, 10], 'Builder', '#2f7770',
+        ['Create a project demonstration', 'Document limits and licenses', 'Plan maintenance and feedback'],
+        [['Model card', 'A report describing a model’s purpose, evaluation, and limits'], ['Maintenance', 'Ongoing work to keep a system safe and useful'], ['Version', 'An identified state of software, data, or a model']],
+        [
+          ['Tell the problem-to-evidence story', 'A strong presentation explains the need, users, design, data, model or rules, tests, failures, improvements, and demonstration. Claims should match measured evidence.', 'Build a seven-slide outline using those headings.'],
+          ['Ship documentation with the project', 'Include setup steps, offline requirements, source and license records, data and model cards, test results, limitations, and safe-use guidance.', 'Audit your project folder against a release checklist.'],
+          ['Plan for change', 'Real environments change. Decide who receives feedback, how errors are corrected, when data or models are reevaluated, and when the system should be paused.', 'Write a maintenance plan with owner, schedule, signals, and rollback action.'],
+        ],
+        [
+          ['What should a project presentation claim?', ['Only what evidence supports', 'Perfect accuracy without testing', 'That AI replaces all people', 'That licenses do not matter'], 0, 'Honest evidence and limitations build trust.'],
+          ['Why does an AI project need maintenance?', ['Data, users, software, and conditions can change', 'To make the title longer', 'Because offline apps never work', 'To avoid feedback'], 0, 'Performance and safety can change over time.'],
+        ]),
+    ],
+  },
+]
+
+export const allLessons = curriculum.flatMap((module) => module.lessons)
+
+const baseGuidedProjects: GuidedProject[] = [
+  {
+    id: 'smart-sorter',
+    title: 'Smart Classroom Sorter',
+    gradeBand: 'Grades 5–6',
+    duration: '3–5 sessions',
+    difficulty: 'Starter',
+    summary: 'Build and test a transparent rule-based system that sorts classroom objects.',
+    outcome: 'A working sorter, test table, explanation poster, and reflection on when machine learning might help.',
+    skills: ['Problem framing', 'Features', 'Rules', 'Testing'],
+    materials: ['Paper or local notes', 'Ten safe classroom objects or object cards', 'ShikshaAI project log'],
+    steps: [
+      { title: 'Define the purpose', instructions: 'Choose useful categories such as reusable, recyclable, and other. Write who uses the sorter and what a good result means.', evidence: 'Problem statement and category definitions' },
+      { title: 'Choose observable features', instructions: 'List safe properties such as material, flexibility, and intended reuse. Avoid names or personal data.', evidence: 'Feature table for at least ten examples' },
+      { title: 'Write and run rules', instructions: 'Create if–then rules, run every example, and record predicted and correct categories.', evidence: 'Rules and completed test table' },
+      { title: 'Improve edge cases', instructions: 'Find at least two difficult examples, revise one rule, and compare results before and after.', evidence: 'Before/after accuracy and explanation' },
+      { title: 'Present responsibly', instructions: 'Explain limits and why a person should review uncertain objects.', evidence: 'Two-minute demonstration and reflection' },
+    ],
+    rubric: [
+      { criterion: 'Problem', excellent: 'Clear users, categories, and measurable purpose' },
+      { criterion: 'Logic', excellent: 'Rules are understandable and handle conflicts' },
+      { criterion: 'Testing', excellent: 'Includes normal and edge cases with recorded results' },
+      { criterion: 'Reflection', excellent: 'Explains limitations and a sensible next improvement' },
+    ],
+  },
+  {
+    id: 'study-planner',
+    title: 'Offline Study Planner',
+    gradeBand: 'Grades 6–8',
+    duration: '5–7 sessions',
+    difficulty: 'Intermediate',
+    summary: 'Design a private study-planning assistant using rules, progress, and learner feedback.',
+    outcome: 'A prototype that recommends a study sequence without collecting unnecessary personal information.',
+    skills: ['User needs', 'Decision logic', 'Privacy', 'Usability testing'],
+    materials: ['Local device', 'Sample fictional learner records', 'Project journal'],
+    steps: [
+      { title: 'Interview fictional users', instructions: 'Create three learner profiles with subjects, available time, and goals. Do not use real private records.', evidence: 'Needs table and privacy boundary' },
+      { title: 'Design recommendation logic', instructions: 'Prioritize unfinished prerequisites, low quiz scores, upcoming deadlines, and reasonable breaks.', evidence: 'Flowchart or pseudocode' },
+      { title: 'Prototype the experience', instructions: 'Create input, recommendation, explanation, and progress views.', evidence: 'Clickable or paper prototype' },
+      { title: 'Test fairness and usability', instructions: 'Check different schedules, limited study time, missing information, and accessibility needs.', evidence: 'At least eight test cases and findings' },
+      { title: 'Improve and document', instructions: 'Revise based on evidence and explain what the planner cannot know.', evidence: 'Final demonstration and limitation statement' },
+    ],
+    rubric: [
+      { criterion: 'Learner value', excellent: 'Recommendations clearly connect to learner goals and evidence' },
+      { criterion: 'Privacy', excellent: 'Uses minimal fictional or learner-controlled data' },
+      { criterion: 'Explanation', excellent: 'Every recommendation includes an understandable reason' },
+      { criterion: 'Testing', excellent: 'Diverse schedules and failure cases are evaluated' },
+    ],
+  },
+  {
+    id: 'message-classifier',
+    title: 'Helpful Message Classifier',
+    gradeBand: 'Grades 7–9',
+    duration: '6–8 sessions',
+    difficulty: 'Intermediate',
+    summary: 'Build a small offline classifier that organizes fictional school messages by topic.',
+    outcome: 'A labelled dataset, baseline rules, model plan, evaluation, and model card.',
+    skills: ['Labelling', 'Classification', 'Metrics', 'Error analysis'],
+    materials: ['Forty original fictional messages', 'Spreadsheet or JSON file', 'Local coding environment'],
+    steps: [
+      { title: 'Define labels', instructions: 'Choose clear categories such as homework, event, transport, and general. Write inclusion and exclusion rules.', evidence: 'Label guide with examples' },
+      { title: 'Create safe data', instructions: 'Write original fictional messages with no names, phone numbers, or real personal details.', evidence: 'Balanced dataset and data card' },
+      { title: 'Build a baseline', instructions: 'Use keywords or simple scores, then record a confusion matrix.', evidence: 'Working baseline and metrics' },
+      { title: 'Analyze errors', instructions: 'Group false predictions and identify ambiguity, missing keywords, or label problems.', evidence: 'Error table and one measured improvement' },
+      { title: 'Document use limits', instructions: 'Explain why the system should organize messages but not make disciplinary decisions.', evidence: 'Model card and responsible-use section' },
+    ],
+    rubric: [
+      { criterion: 'Dataset', excellent: 'Original, safe, balanced examples with consistent labels' },
+      { criterion: 'Evaluation', excellent: 'Reports confusion matrix and appropriate metrics' },
+      { criterion: 'Improvement', excellent: 'A change is tested against the same evaluation set' },
+      { criterion: 'Responsibility', excellent: 'Intended and prohibited uses are explicit' },
+    ],
+  },
+  {
+    id: 'plant-advisor',
+    title: 'Local Plant Care Advisor',
+    gradeBand: 'Grades 8–10',
+    duration: '8–10 sessions',
+    difficulty: 'Capstone',
+    summary: 'Create a data-driven, offline advisor using observations rather than personal data.',
+    outcome: 'A tested recommendation system with data documentation, uncertainty, and safety boundaries.',
+    skills: ['Data pipeline', 'Prediction', 'Uncertainty', 'Documentation'],
+    materials: ['Original plant observations', 'Local weather measurements if available', 'Coding environment'],
+    steps: [
+      { title: 'Frame a narrow question', instructions: 'Choose a safe goal such as suggesting whether to inspect soil moisture, not diagnosing disease with certainty.', evidence: 'Problem statement, users, and safety boundary' },
+      { title: 'Create a data plan', instructions: 'Define plant type, soil moisture category, light, recent watering, and observed condition.', evidence: 'Data dictionary, collection method, and quality checks' },
+      { title: 'Build baseline and prototype', instructions: 'Start with transparent rules. Add a learned model only if enough suitable examples exist.', evidence: 'Working offline prototype and versioned code' },
+      { title: 'Evaluate conditions', instructions: 'Test across plant types, missing values, unusual conditions, and records from different times.', evidence: 'Metrics, error groups, and uncertainty messages' },
+      { title: 'Release responsibly', instructions: 'Provide model/data cards, source records, limitations, maintenance plan, and a live demonstration.', evidence: 'Complete capstone portfolio' },
+    ],
+    rubric: [
+      { criterion: 'Problem framing', excellent: 'Narrow, safe, useful goal with measurable success' },
+      { criterion: 'Engineering', excellent: 'Validated inputs, clear pipeline, errors, and offline persistence' },
+      { criterion: 'Evidence', excellent: 'Repeatable tests across relevant conditions' },
+      { criterion: 'Communication', excellent: 'Clear demonstration, documentation, limits, and next steps' },
+    ],
+  },
+  {
+    id: 'community-capstone',
+    title: 'Community AI Capstone',
+    gradeBand: 'Grades 9–10',
+    duration: '4–8 weeks',
+    difficulty: 'Capstone',
+    summary: 'Choose a local education, environment, accessibility, or resource problem and complete the full responsible-AI lifecycle.',
+    outcome: 'A portfolio-quality offline AI project supported by evidence and community feedback.',
+    skills: ['Research', 'AI engineering', 'Evaluation', 'Responsible design', 'Presentation'],
+    materials: ['Locally approved data or original content', 'Project journal', 'ShikshaAI tutor and course'],
+    steps: [
+      { title: 'Discover and approve the problem', instructions: 'Interview stakeholders with adult supervision, define scope, compare AI and non-AI options, and obtain project approval.', evidence: 'Research notes, problem statement, and risk screen' },
+      { title: 'Plan responsibly', instructions: 'Create architecture, data plan, consent/privacy approach, license inventory, milestones, and acceptance criteria.', evidence: 'Approved project plan' },
+      { title: 'Build in milestones', instructions: 'Create a baseline, prototype, and improved version. Record decisions and keep source reproducible.', evidence: 'Versioned builds and engineering log' },
+      { title: 'Evaluate deeply', instructions: 'Test functionality, model quality, usability, fairness, safety, offline operation, restart, and low-resource behavior.', evidence: 'Test report with PASS, FAIL, and NOT RUN' },
+      { title: 'Demonstrate and reflect', instructions: 'Present to users, gather feedback, explain limits honestly, and identify a maintenance owner.', evidence: 'Final product, presentation, feedback, and reflection' },
+    ],
+    rubric: [
+      { criterion: 'Need and impact', excellent: 'Evidence shows a meaningful, appropriately scoped local need' },
+      { criterion: 'Technical quality', excellent: 'Reliable offline pipeline with validation, persistence, and recovery' },
+      { criterion: 'AI evaluation', excellent: 'Metrics and error analysis match real consequences' },
+      { criterion: 'Responsible practice', excellent: 'Privacy, fairness, safety, licenses, and human oversight are addressed' },
+      { criterion: 'Communication', excellent: 'Claims are evidence-based and limitations are clear' },
+    ],
+  },
+]
+
+export const guidedProjects: GuidedProject[] = baseGuidedProjects.map((project) => {
+  const guide = projectGuides[project.id]
+  return {
+    ...project,
+    essentialQuestion: guide.essentialQuestion,
+    studentBrief: guide.studentBrief,
+    workedExample: guide.workedExample,
+    safety: guide.safety,
+    deliverables: guide.deliverables,
+    steps: project.steps.map((step, index) => ({
+      ...step,
+      tasks: guide.milestones[index].tasks,
+      qualityChecks: guide.milestones[index].qualityChecks,
+    })),
+  }
+})
+
+export const curriculumContext = allLessons
+  .map((item) => `${item.title}: ${item.summary}. ${item.objectives.join('; ')}.`)
+  .join('\n')

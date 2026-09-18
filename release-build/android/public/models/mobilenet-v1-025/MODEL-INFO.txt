@@ -1,0 +1,16 @@
+MobileNet V1 0.25 224 TensorFlow.js model
+
+Purpose:
+Offline visual feature extraction for AI Shiksha ML Studio.
+
+Model source:
+https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/
+
+Project source:
+https://github.com/tensorflow/tfjs-models/tree/master/mobilenet
+
+License:
+Apache License 2.0
+
+The model runs locally in the browser, Electron renderer, or Capacitor WebView.
+AI Shiksha does not upload learner photos for inference.

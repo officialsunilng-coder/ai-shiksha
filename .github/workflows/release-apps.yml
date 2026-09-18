@@ -1,0 +1,176 @@
+name: Build offline app releases
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: offline-app-release
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: v2026.09.18-offline
+
+jobs:
+  android:
+    name: Build Android offline Tutor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: release-build/android
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: release-build/android/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android build tools
+        shell: bash
+        run: |
+          yes | sdkmanager \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;29.0.14206865" \
+            "cmake;3.22.1"
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Build and synchronize web application
+        shell: bash
+        run: |
+          npm run build
+          npx cap copy android
+
+      - name: Download and verify mobile Granite model
+        shell: bash
+        run: |
+          mkdir -p android/app/src/main/assets/models
+          curl --location --fail --retry 5 --retry-delay 5 \
+            --output android/app/src/main/assets/models/granite-3.0-1b-a400m-instruct-Q3_K_M.gguf \
+            "https://huggingface.co/tensorblock/granite-3.0-1b-a400m-instruct-GGUF/resolve/main/granite-3.0-1b-a400m-instruct-Q3_K_M.gguf?download=true"
+          echo "ecb21263c3b4121aaedb4da26b3b1e8c00e6f8b271142644c882c8bd4fb51dad  android/app/src/main/assets/models/granite-3.0-1b-a400m-instruct-Q3_K_M.gguf" | sha256sum --check
+
+      - name: Build Android APK
+        shell: bash
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon --console=plain
+
+      - name: Verify Android artifact
+        shell: bash
+        run: |
+          apk="android/app/build/outputs/apk/debug/AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk"
+          test -f "$apk"
+          unzip -l "$apk" | grep "assets/models/granite-3.0-1b-a400m-instruct-Q3_K_M.gguf"
+          sha256sum "$apk" > Android-SHA256SUMS.txt
+
+      - name: Upload Android release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            android/app/build/outputs/apk/debug/AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk \
+            Android-SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY"
+
+  windows:
+    name: Build Windows offline Tutor
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: release-build/windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: release-build/windows/package-lock.json
+
+      - name: Install application dependencies
+        run: npm ci
+
+      - name: Download and verify Windows runtime
+        shell: pwsh
+        run: |
+          $runtimeArchive = Join-Path $env:RUNNER_TEMP "llama-b10964-bin-win-cpu-x64.zip"
+          curl.exe --location --fail --retry 5 --retry-delay 5 `
+            --output $runtimeArchive `
+            "https://github.com/ggml-org/llama.cpp/releases/download/b10964/llama-b10964-bin-win-cpu-x64.zip"
+          $runtimeHash = (Get-FileHash $runtimeArchive -Algorithm SHA256).Hash
+          if ($runtimeHash -ne "917F39C076402C421224824607397AF20F53625A60DEFC20E8DD22446BF4C5D7") {
+            throw "Unexpected llama.cpp runtime checksum: $runtimeHash"
+          }
+          New-Item -ItemType Directory -Path runtime -Force | Out-Null
+          Expand-Archive -Path $runtimeArchive -DestinationPath runtime
+
+      - name: Download and verify Windows Granite model
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path models -Force | Out-Null
+          $model = "models\granite-3.3-2b-instruct-Q4_K_M.gguf"
+          curl.exe --location --fail --retry 5 --retry-delay 5 `
+            --output $model `
+            "https://huggingface.co/Edge-Quant/granite-3.3-2b-instruct-Q4_K_M-GGUF/resolve/main/granite-3.3-2b-instruct-q4_k_m.gguf?download=true"
+          $modelHash = (Get-FileHash $model -Algorithm SHA256).Hash
+          if ($modelHash -ne "A6CB86162792AF1FC7886DC1F31E57A7CF9E0866C660D7C3D44BE5173776818D") {
+            throw "Unexpected Granite model checksum: $modelHash"
+          }
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          npm run build
+          npx electron-builder --win nsis --publish never --config.directories.output=release-cloud
+
+      - name: Verify Windows artifact
+        shell: pwsh
+        run: |
+          $installer = "release-cloud\ShikshaAI-Granite-Lite-0.1.0-Setup.exe"
+          if (-not (Test-Path $installer)) {
+            throw "Windows installer was not created."
+          }
+          $hash = (Get-FileHash $installer -Algorithm SHA256).Hash
+          "$hash  ShikshaAI-Granite-Lite-0.1.0-Setup.exe" | Set-Content Windows-SHA256SUMS.txt
+
+      - name: Upload Windows release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload $env:RELEASE_TAG `
+            "release-cloud\ShikshaAI-Granite-Lite-0.1.0-Setup.exe" `
+            "Windows-SHA256SUMS.txt" `
+            --repo $env:GITHUB_REPOSITORY
+
+  publish:
+    name: Publish completed release
+    needs: [android, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$RELEASE_TAG" --draft=false --repo "$GITHUB_REPOSITORY"

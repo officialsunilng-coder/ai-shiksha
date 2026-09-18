@@ -1,0 +1,37 @@
+:root {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #25312f;
+  background: #f8f7f2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --serif: Georgia, 'Times New Roman', serif;
+  --background: #f8f7f2;
+  --panel: #ffffff;
+  --soft: #f1f0e9;
+  --soft-strong: #e4e2d9;
+  --ink: #24312f;
+  --muted: #70807c;
+  --border: #e2e2da;
+  --green-soft: #e5f3ee;
+  --shadow: 0 3px 14px #223b3510;
+}
+
+:root[data-theme='dark'] {
+  color: #d9e2df;
+  background: #121a19;
+  --background: #121a19;
+  --panel: #1a2523;
+  --soft: #22302d;
+  --soft-strong: #31413e;
+  --ink: #edf3f1;
+  --muted: #9aaba6;
+  --border: #30403d;
+  --green-soft: #1d3c35;
+  --shadow: 0 3px 14px #00000030;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--background); }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--background); }
+button, input, textarea { font-family: inherit; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #e3634166; outline-offset: 2px; }
