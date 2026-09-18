@@ -2,6 +2,15 @@ name: Build offline app releases
 
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: Packages to build
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - android
 
 permissions:
   contents: write
@@ -37,13 +46,11 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Install Android build tools
         shell: bash
         run: |
-          yes | sdkmanager \
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
             "platforms;android-36" \
             "build-tools;36.0.0" \
             "ndk;29.0.14206865" \
@@ -94,6 +101,7 @@ jobs:
 
   windows:
     name: Build Windows offline Tutor
+    if: inputs.target == 'all'
     runs-on: windows-latest
     defaults:
       run:
@@ -168,8 +176,19 @@ jobs:
   publish:
     name: Publish completed release
     needs: [android, windows]
+    if: always() && needs.android.result == 'success' && (needs.windows.result == 'success' || needs.windows.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
+      - name: Verify required release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          assets="$(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+          grep -Fx "AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk" <<< "$assets"
+          grep -Fx "Android-SHA256SUMS.txt" <<< "$assets"
+          grep -Fx "ShikshaAI-Granite-Lite-0.1.0-Setup.exe" <<< "$assets"
+          grep -Fx "Windows-SHA256SUMS.txt" <<< "$assets"
+
       - name: Publish draft release
         env:
           GH_TOKEN: ${{ github.token }}
