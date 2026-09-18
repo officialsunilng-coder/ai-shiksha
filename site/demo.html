@@ -1,41 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
     <title>AI Shiksha Hackathon Demo</title>
-    <link rel="icon" type="image/png" href="./shikshaai-icon.png" />
-    <link rel="stylesheet" href="./demo.css" />
+    <link rel="icon" type="image/png" href="./shikshaai-icon.png">
+    <link rel="stylesheet" href="./demo.css">
   </head>
   <body>
     <main>
       <header class="hero">
-        <img src="./shikshaai-banner.png" alt="AI Shiksha — Every mind deserves a chance. Knowledge belongs to everyone. Ideas can come from anywhere." />
+        <img src="./shikshaai-banner.png" alt="AI Shiksha — Curiosity has no Zipcode.">
         <div class="hero-copy">
           <span>Hackathon demo · Grades 5–10</span>
           <h1>Learn AI and train your own models—privately and offline.</h1>
-          <p>Open the browser demo immediately, or install the Android test application. No account is required.</p>
+        <p>Start immediately in a browser, or download an offline Tutor package for Windows or Android. No account is required.</p>
           <div class="actions">
             <a class="primary" href="./index.html">Start browser demo</a>
-            <a href="./downloads/ShikshaAI-Android-Demo.apk" download>Download Android APK</a>
+          <a href="#platforms">Choose your device</a>
           </div>
         </div>
       </header>
 
-      <section class="quick-start">
-        <article>
-          <strong>Browser, Chromebook, or Windows</strong>
-          <p>Select <b>Start browser demo</b>. Course progress and ML projects remain in this browser.</p>
+      <section class="platforms" id="platforms" aria-labelledby="platform-heading">
+        <div class="section-heading">
+        <span>Install AI Shiksha</span>
+        <h2 id="platform-heading">Choose your device</h2>
+        <p>The browser edition is lightweight. Windows and Android offline packages include a local Generative AI Tutor.</p>
+        </div>
+
+        <div class="platform-grid">
+        <article class="platform-card">
+          <div class="platform-title">
+            <strong>Windows</strong>
+            <span class="status full">Full offline Tutor</span>
+          </div>
+          <p>For 64-bit Windows computers. Includes the Granite 3.3 2B model and local llama.cpp runtime.</p>
+          <ol>
+            <li>Download the 1.68 GB installer.</li>
+            <li>Run the setup file and follow the installation prompts.</li>
+            <li>Open AI Shiksha from the desktop or Start menu.</li>
+          </ol>
+          <a class="download" href="https://github.com/officialsunilng-coder/ai-shiksha/releases/download/v2026.09.18-offline/ShikshaAI-Granite-Lite-0.1.0-Setup.exe">Download for Windows</a>
+          <code>SHA-256: 8CC90DBD…895858AA</code>
         </article>
-        <article>
-          <strong>iPad or iPhone</strong>
-          <p>Open in Safari, start the demo, then use Share → Add to Home Screen for an app-like shortcut.</p>
+
+        <article class="platform-card">
+          <div class="platform-title">
+            <strong>Android</strong>
+            <span class="status full">Full offline Tutor</span>
+          </div>
+          <p>For Android 9 or newer. Includes the mobile Granite model and requires about 1.5 GB of free storage.</p>
+          <ol>
+            <li>Download the 702 MB APK.</li>
+            <li>Allow installation from your browser or Files app.</li>
+            <li>Keep the app open while the first Tutor question prepares the model.</li>
+          </ol>
+          <a class="download" href="https://github.com/officialsunilng-coder/ai-shiksha/releases/download/v2026.09.18-offline/AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk">Download for Android</a>
+          <a class="secondary-download" href="./downloads/ShikshaAI-Android-Demo.apk" download>Download 43 MB Lite APK without Tutor</a>
+          <code>SHA-256: 7E3ECD58…E62EDFC9</code>
         </article>
-        <article>
-          <strong>Android</strong>
-          <p>Download the APK and approve installation from this browser if Android requests permission.</p>
+
+        <article class="platform-card">
+          <div class="platform-title">
+            <strong>iPhone and iPad</strong>
+            <span class="status browser">Browser app available</span>
+          </div>
+          <p>The installable Safari PWA includes the course and ML Studio. The native offline Tutor awaits Apple signing and TestFlight.</p>
+          <ol>
+            <li>Open the browser demo in Safari.</li>
+            <li>Tap Share, then <b>Add to Home Screen</b>.</li>
+            <li>Launch AI Shiksha from its Home Screen icon.</li>
+          </ol>
+          <a class="download" href="./index.html">Open iPhone/iPad app</a>
+          <span class="availability-note">Native Tutor package: Xcode-ready, not yet distributed through TestFlight.</span>
         </article>
+
+        <article class="platform-card">
+          <div class="platform-title">
+            <strong>Mac</strong>
+            <span class="status browser">Browser app available</span>
+          </div>
+          <p>Use the Safari or Chrome PWA for the course, projects, progress, PDF export, and ML Studio.</p>
+          <ol>
+            <li>Open the browser demo.</li>
+            <li>In Safari, choose File, then <b>Add to Dock</b>.</li>
+            <li>Launch AI Shiksha from the Dock or Applications.</li>
+          </ol>
+          <a class="download" href="./index.html">Open Mac browser app</a>
+          <span class="availability-note">Native macOS installer and offline Generative AI Tutor are not currently available.</span>
+        </article>
+        </div>
       </section>
 
       <section class="features">
@@ -57,9 +113,9 @@
       </section>
 
       <section class="notice">
-        <h2>What works in this public demo?</h2>
+        <h2>Offline Tutor availability</h2>
         <p>The full curriculum, assessments, guided projects, progress tracking, PDF export, and ML Studio work without a language-model download.</p>
-        <p><b>AI Tutor limitation:</b> conversational tutoring requires the separate multi-gigabyte Granite model and is not included in this public web package.</p>
+        <p><b>Generative AI Tutor:</b> included in the Windows and full Android downloads. It is not available in the browser/PWA edition. Native iPhone/iPad Tutor distribution still requires Apple signing and TestFlight.</p>
       </section>
 
       <footer>

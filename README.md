@@ -1,7 +1,8 @@
 # AI Shiksha — Offline learning demo
 
 AI Shiksha is an offline-first learning application for students in grades 5–10.
-This repository hosts the hackathon browser demo and Android test package.
+This repository hosts the hackathon browser demo and cross-platform offline
+application downloads.
 
 ## Scan and test
 
@@ -23,17 +24,22 @@ The browser demo includes:
 
 ## Downloads
 
-- **Browser and iPad:** Open the QR page, select **Start browser demo**, and optionally use **Add to Home Screen**.
-- **Android:** Download `ShikshaAI-Android-Demo.apk` from the QR page. Android may require permission to install an app from the browser.
-- **Windows:** Use the browser demo for public testing. The complete Windows package contains a multi-gigabyte offline language model and is not stored in this repository.
-- **iOS/TestFlight:** The native iOS project is implemented separately but still requires macOS/Xcode signing and TestFlight submission.
+- **Windows:** Download the 1.68 GB installer from the QR page. It includes the
+  Granite 3.3 2B model, llama.cpp runtime, and offline Generative AI Tutor.
+- **Android:** Download the 702 MB version 1.1 APK for the bundled mobile
+  Granite Tutor, or the 43 MB Lite APK when conversational tutoring is not
+  required.
+- **iPhone/iPad:** Open the browser app in Safari and use **Share → Add to Home
+  Screen**. The native offline-Tutor project is Xcode-ready but still requires
+  Apple signing and TestFlight distribution.
+- **Mac:** Use the Safari or Chrome browser app. There is currently no native
+  macOS installer or offline Generative AI Tutor.
 
-## Important model limitation
+## Generative AI Tutor availability
 
 The course and ML Studio run in the browser without a language-model download.
-The **AI Tutor** requires the separately installed Granite model and native
-runtime, so it is unavailable in the GitHub Pages browser demo and in the APK
-until that model content pack is copied to the device.
+The **Generative AI Tutor** is included in the Windows installer and full
+Android APK. It is unavailable in the browser/PWA edition.
 
 ## Privacy
 
@@ -41,9 +47,25 @@ The demo has no analytics, advertising, user account, or cloud inference.
 Learning records and ML Studio projects are stored in the browser or application
 storage on the current device. See [the privacy notice](site/privacy.html).
 
-## Android package verification
+## Package verification
 
-Published APK:
+Windows offline Tutor installer:
+
+`ShikshaAI-Granite-Lite-0.1.0-Setup.exe`
+
+SHA-256:
+
+`8CC90DBDAF4FBC9ECFBF5BEA52E13ADBB700D53DCBEB0E7555E383ED895858AA`
+
+Android offline Tutor APK:
+
+`AI-Shiksha-Android-Offline-Tutor-1.1-debug.apk`
+
+SHA-256:
+
+`7E3ECD581D42D92CDA6BFF2DA44FEC80226408EE7D522387081C6FBFE62EDFC9`
+
+Android Lite APK:
 
 `site/downloads/ShikshaAI-Android-Demo.apk`
 
@@ -51,7 +73,8 @@ SHA-256:
 
 `B9E2EE999BD3EB58E12D930B292471B10711C1F3ED9F0B7B5511DCB022A36A11`
 
-This is a debug-signed hackathon build, not a Play Store production release.
+The Android packages are debug-signed hackathon builds, not Play Store
+production releases.
 
 ## Deployment
 
